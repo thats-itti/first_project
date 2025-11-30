@@ -55,7 +55,13 @@ class records(models.Model):
     description = models.TextField(verbose_name = "verbose", blank= True , null= True)
     user = models.ForeignKey(User , on_delete= models.CASCADE , null=  False , blank = False , related_name= "records")
 
+class todos_history(models.Model):
+    
+    user = models.Foreignkey(User , on_delete = models.CASCADE , null = False , blank = False , related_name = "history")
 
+    todo = models.foreignkey(User , on_delete = models.CASCADE , null = False , blank = False , related_name = "its_history")
+    date = models.DateField(verbose_name= "date")
+    time_spend = models.DurationField(verbose_name="time-spend ", default= timedelta())
 
 
 
