@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from .models import Login , records , dailytodos , Todos , Todos_history
+from .models import Records , Dailytodos , Todos , Todos_history
 from django.core.exceptions import ValidationError
+from datetime import datetime
+
 
 class Recods_serializers(serializers.ModelSerializer):
     def __init__(self,*args,**kwargs):
@@ -16,8 +18,9 @@ class Recods_serializers(serializers.ModelSerializer):
             
 
     class Meta:
-        model  =records 
+        model  =Records 
         fields = [
+            'id',
             'task',
             'description',
             'issued_date'
@@ -25,7 +28,7 @@ class Recods_serializers(serializers.ModelSerializer):
         ]
     
 
-class Todos_serializer(serializers.Modelserializer):
+class Todos_serializer(serializers.ModelSerializer):
     def __init__(self,*args,**kwargs):
         request = kwargs.get("context",{}).get("request") 
         str_fields = request.GET.get("Todos","") if request else None
@@ -42,6 +45,7 @@ class Todos_serializer(serializers.Modelserializer):
     class Meta:
         model = Todos
         fields = [
+            'id',
             'task',
             'description',
             'completed',
@@ -52,22 +56,43 @@ class Todos_serializer(serializers.Modelserializer):
             'time_based',
             'daily_based',
             'daily_time',
-            "remaining_time"
+            "remaining_time",
+            "working"
+            "total_daily_completed"
             
         ]
     def validate(self,data):
+        # task_date = data.get("task_date")
+        # if isinstance(task_date, list):
+        #     task_date = task_date[0]
+        # if isinstance(task_date, str):
+        #     try:
+        #         task_date = datetime.fromisoformat(task_date)
+        #     except ValueError:
+        #         raise serializers.ValidationError({"task_date": "Invalid datetime format"})
+        # if not isinstance(task_date, datetime) and task_date is not None:
+        #     raise serializers.ValidationError({"task_date": "task_date must be a datetime object"})
+
+        # data['task_date'] = task_date
+
         if data.get("time_based"):
             if data.get("total_time") == "" or data.get("total_time") == "null":
                raise ValidationError("total time need to be insert for the time based task ") 
-        if data.get("issued_date") < data.get("task_date"):
-                raise ValidationError("task cannot be schedule for past date")
-        if data.get("daily_based"):
+        if data.get('issued_date') is not None and data.get("task_date") is not None:
+            if data.get("issued_date") < data.get("task_date"):
+                    raise ValidationError("task cannot be schedule for past date")
+        if data.get("daily_based") and data.get("time_based"):
             if data.get("daily_time") == "null" or data.get("daily_time") == "":
                 raise ValidationError("daily time need to be assigned for daily based task")
-        if data.get("comleted_time") != ("null" , "") and data.get("time_based"):
-            if data.get('total_time') <= data.get('completed_time'):
-                if not data.get("completed"):
-                    data['completed'] = True
+            
+
+        completed_time = data.get("completed_time")
+        total_time = data.get("total_time")
+        if completed_time not in ["", "null", None] and total_time is not None:
+            if total_time <= completed_time and not data.get("completed"):
+                data['completed'] = True
+        print("hello workd")
+
         return super().validate(data)
 
 
@@ -87,17 +112,22 @@ class Daily_serializer(serializers.ModelSerializer):
             all_fields = set(self.fields)
             for field_name in all_fields - allowed:
                 self.fields.pop(field_name)
-            
+    def to_representation(self, instance):
+        if instance.active:
+            return super().to_representation(instance)
+        return None
 
     class Meta:
-        model = dailytodos 
+        model = Dailytodos 
         fields = [
+            'id',
             'task',
             'description',
             'completed_time',
             'completed',
             'daily_time',
-            "time_based"
+            'time_based',
+            'working'
             
         ]
     def validate(self, data):
@@ -123,7 +153,7 @@ class Todos_history_serializer(serializers.ModelSerializer):
     class meta:
         model = Todos_history
         fields = [
-            
+            'id',
             'date',
             'time_spend'
         ]
@@ -292,7 +322,7 @@ class Todos_history_serializer(serializers.ModelSerializer):
 # # Strict integer (reject strings)
 # class StrictIntField(serializers.Field):
 #     def to_internal_value(self, data):
-#         if not isinstance(data, int):
+#         i+V+f not isinstance(data, int):
 #             raise serializers.ValidationError("Must be an integer, not string.")
 #         return data
 
