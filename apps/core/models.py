@@ -1,21 +1,25 @@
 from django.db import models
-from django.contrib.auth.models import User
 from datetime import timedelta , date
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete , pre_save , post_delete , post_save
-from django.contrib.auth.models import  AbstractUser
+from django.contrib.auth.models import  AbstractUser,AbstractBaseUser , PermissionsMixin
+from .manager import Usermanager
 
 # Create your models here.
 
-class customuser(AbstractUser):
-    username = None
-    email = models.EmailField(verbose_name="email address",unique=True)
-    USERNAME_FIELD = "email"
+# class customuser(AbstractUser):
+#     username = None
+#     email = models.EmailField(verbose_name="email address",unique=True)
+#     USERNAME_FIELD = "email"
     
-
-
-   
+class User(AbstractBaseUser,PermissionsMixin):
+    username = None 
+    email = models.EmailField(verbose_name="login mail",unique= True)
+    is_active = models.BooleanField(default= True)
+    is_staff = models.BooleanField(default= False)
+    objects = Usermanager()
+    USERNAME_FIELD = "email"
 
 class Todos(models.Model):
     task = models.CharField(verbose_name="title", null = False , blank = False , max_length= 70)
@@ -35,7 +39,7 @@ class Todos(models.Model):
     daily_based = models.BooleanField(verbose_name="daily_based", null = False , blank = False)
 
     total_time = models.DurationField(verbose_name=" total time invested for task ", null= True , blank = True , default= timedelta())
-    total_daily_completed = models.IntegerField(verbose_name="dialy_completed" , null= True , blank = True)
+    daily_completed_count = models.IntegerField(verbose_name="dialy_completed count" , null= True , blank = True)
 
     completed_time = models.DurationField(verbose_name="completed duration",null= True , blank = True , default= timedelta())
 

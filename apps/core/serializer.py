@@ -45,7 +45,7 @@ class Todos_serializer(serializers.ModelSerializer):
     class Meta:
         model = Todos
         fields = [
-            'id',
+            'user',
             'task',
             'description',
             'completed',
@@ -57,8 +57,8 @@ class Todos_serializer(serializers.ModelSerializer):
             'daily_based',
             'daily_time',
             "remaining_time",
-            "working"
-            "total_daily_completed"
+            "working",
+            "daily_completed_count"
             
         ]
     def validate(self,data):
