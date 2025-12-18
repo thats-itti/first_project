@@ -20,7 +20,7 @@ class Recods_serializers(serializers.ModelSerializer):
     class Meta:
         model  =Records 
         fields = [
-            'id',
+            
             'task',
             'description',
             'issued_date'
@@ -45,7 +45,7 @@ class Todos_serializer(serializers.ModelSerializer):
     class Meta:
         model = Todos
         fields = [
-            'user',
+            
             'task',
             'description',
             'completed',
