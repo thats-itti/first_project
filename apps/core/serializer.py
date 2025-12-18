@@ -45,7 +45,6 @@ class Todos_serializer(serializers.ModelSerializer):
     class Meta:
         model = Todos
         fields = [
-            
             'task',
             'description',
             'completed',
@@ -91,14 +90,9 @@ class Todos_serializer(serializers.ModelSerializer):
         if completed_time not in ["", "null", None] and total_time is not None:
             if total_time <= completed_time and not data.get("completed"):
                 data['completed'] = True
-        print("hello workd")
-
         return super().validate(data)
 
 
-        
-                
-        
 
 class Daily_serializer(serializers.ModelSerializer):
 
