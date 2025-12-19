@@ -23,7 +23,7 @@ class Recods_serializers(serializers.ModelSerializer):
             
             'task',
             'description',
-            'issued_date'
+            'issued_date',
             "task_date"
         ]
     
@@ -107,7 +107,7 @@ class Daily_serializer(serializers.ModelSerializer):
             for field_name in all_fields - allowed:
                 self.fields.pop(field_name)
     def to_representation(self, instance):
-        if instance.active:
+        if instance.is_active:
             return super().to_representation(instance)
         return None
 
@@ -144,7 +144,7 @@ class Todos_history_serializer(serializers.ModelSerializer):
             all_fields = self.fields
             for not_fields in all_fields - alloted:
                 self.fields.pop(not_fields)
-    class meta:
+    class Meta:
         model = Todos_history
         fields = [
             'id',
