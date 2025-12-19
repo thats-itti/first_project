@@ -12,25 +12,67 @@ from datetime import datetime
 
 
 
-class Todos_listview(ListAPIView):
+class Todos_listview(ListAPIView,
+                     DestroyAPIView,
+                     RetrieveAPIView,
+                     UpdateAPIView,
+                     CreateAPIView,
+                     ):
     
     serializer_class = Todos_serializer 
+    lookup_field = "pk"
+
     def get_queryset(self):
-        qs = Todos.objects.all().filter(is_active=True)
+        if self.kwargs.get('pk') is not None:
+            qs = Todos.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
+        else:
+            qs = Todos.objects.all().filter(is_active=True)
+        print(qs)
         return qs
     def get(self, request, *args, **kwargs):
         qs = self.get_queryset()
         serializer = self.serializer_class(qs , many = True)
         return Response(serializer.data,status = status.HTTP_200_OK)
 
-
-class Todos_destroyapiview(DestroyAPIView):
-    queryset = Todos.objects.all()
-    lookup_field = 'pk'
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def perform_create(self, serializer):
+        serializer.save(user= self.request.user)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # def update(self, request, *args, **kwargs):
+    #     qs = self.get_queryset()
+    #     serializer = self.get_serializer(qs,data=request.data,partial=True)
+    #     serializer.is_valid(raise_exceptions=True)
+    #     serializer.save()
+    #     return super().update(request, *args, **kwargs)
+    # def perform_update(self, serializer):
+
+
+    #     return super().perform_update(serializer)
+
+# class Todos_destroyapiview(DestroyAPIView):
+#     queryset = Todos.objects.all()
+#     lookup_field = 'pk'
 
 class Todos_createapiview(ListCreateAPIView):
     queryset = Todos.objects.all()
@@ -39,7 +81,12 @@ class Todos_createapiview(ListCreateAPIView):
 
     def get(self,request,*args,**kwargs):
         return super().get(request,*args,**kwargs)
- 
+    
+    def get_queryset(self):
+        print("hello world")
+        print(self)
+        return super().get_queryset()
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 

@@ -8,11 +8,6 @@ from .manager import Usermanager
 
 # Create your models here.
 
-# class customuser(AbstractUser):
-#     username = None
-#     email = models.EmailField(verbose_name="email address",unique=True)
-#     USERNAME_FIELD = "email"
-    
 class User(AbstractBaseUser,PermissionsMixin):
     username = None 
     email = models.EmailField(verbose_name="login mail",unique= True)
@@ -21,7 +16,18 @@ class User(AbstractBaseUser,PermissionsMixin):
     objects = Usermanager()
     USERNAME_FIELD = "email"
 
+
+# class User(AbstractUser):
+#     username = None 
+#     email = models.EmailField(verbose_name="login mail",unique= True)
+#     is_active = models.BooleanField(default= True)
+#     is_staff = models.BooleanField(default= False)
+#     objects = Usermanager()
+#     USERNAME_FIELD = "email"
+
+
 class Todos(models.Model):
+    is_active = models.BooleanField(verbose_name="is_active",default=True)
     task = models.CharField(verbose_name="title", null = False , blank = False , max_length= 70)
     start_working_at = models.DateTimeField(verbose_name ="start_time", blank= True , null= True )
 
@@ -57,6 +63,7 @@ class Todos(models.Model):
         return None
 
 class Todos_history(models.Model):
+    is_active = models.BooleanField(verbose_name="is_active",default=True)
     
     user = models.ForeignKey(User , on_delete = models.CASCADE , null = False , blank = False , related_name = "history")
     
@@ -66,6 +73,7 @@ class Todos_history(models.Model):
 
 
 class Dailytodos(models.Model): 
+    is_active = models.BooleanField(verbose_name="is_active",default=True)
 
     
     working = models.BooleanField(verbose_name="working", default= False , null= False , blank= False)
@@ -81,6 +89,8 @@ class Dailytodos(models.Model):
     user = models.ForeignKey(User , on_delete= models.CASCADE , null=  False , blank = False , related_name= "all_daily_activity")
  
 class Records(models.Model):
+    is_active = models.BooleanField(verbose_name="is_active",default=True)
+
     issued_date = models.DateField(verbose_name="date issued" , blank = False , null = False , auto_now_add= True )  
     # here i need to add so that the default could be the date the acivity was listed
     task_date = models.DateField(verbose_name= "the task date" , blank = False , null = False)
