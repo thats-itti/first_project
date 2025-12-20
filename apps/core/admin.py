@@ -10,33 +10,39 @@ admin.site.register(Records)
 
 
 @admin.register(User)
-class customuser(UserAdmin):
+class CustomUserAdmin(UserAdmin):
     model = User
-    # this list_display is for what should be display in like usermodel as a single instance outside what you wish to be shown to represent 
-    list_display = ("email","is_staff","is_superuser","is_active",)
-    # through the means of this terms you could filter out the users in the user models
-    list_filter = ("is_staff","is_superuser","is_active")
-    # ordering suppose to be the one which is used to order the models data by
-    ordering = ("email",)
-    search_fields = ('email',)
-    fieldsets = (
-        (None,{'fields':('email','password',)
-               }),
-        ('permission',{
-            'fields':('is_staff','is_superuser',
-                      'groups',
-                    #   'user_permission'
-                      )
-        }),
-        ('status',{'fields':
-                   ('is_active',)}),
-    )
-    add_fieldsets = (
-        (None,{
-            'classes':("wide",),
-            'fields':('email','passwoed1','password2','is_staff','is_superuser','is_staff','is_superuser'),
-        }),
-        
-    )
-    filter_horizontal = ('groups','user_permissions')
 
+    list_display = ("email", "is_staff", "is_superuser", "is_active")
+    list_filter = ("is_staff", "is_superuser", "is_active")
+    ordering = ("email",)
+    search_fields = ("email",)
+
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Permissions", {
+            "fields": (
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "groups",
+                "user_permissions",
+            )
+        }),
+        ("Important dates", {"fields": ("last_login",)}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": (
+                "email",
+                "password1",
+                "password2",
+                "is_staff",
+                "is_superuser",
+            ),
+        }),
+    )
+
+    filter_horizontal = ("groups", "user_permissions")
