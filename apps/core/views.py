@@ -7,43 +7,45 @@ from .models import Todos , Todos_history , Records , Dailytodos,User
 from .serializer import Daily_serializer , Todos_history_serializer , Todos_serializer , Recods_serializers
 from rest_framework import status
 from datetime import datetime
+from django.core.exceptions import ValidationError
 # from django import status
 # Create your views here.
 
-
-
-class Todos_listview(ListAPIView,
+class Todos_otherview(
                      DestroyAPIView,
                      RetrieveAPIView,
                      UpdateAPIView,
                      CreateAPIView,
                      ):
-    
+    # def dispatch(self, request, *args, **kwargs):
+    #     if 'pk'  not in kwargs and request.method in ['PATCH','PUT','DELETE']:
+    #         return Response({"details":"method not allowed without pk "},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     return super().dispatch(request, *args, **kwargs)
+
     serializer_class = Todos_serializer 
     lookup_field = "pk"
-
     def get_queryset(self):
-        if self.kwargs.get('pk') is not None:
-            qs = Todos.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
-        else:
-            qs = Todos.objects.all().filter(is_active=True)
+        qs = Todos.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
         return qs
-    def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()
-        serializer = self.serializer_class(qs , many = True)
-        return Response(serializer.data,status = status.HTTP_200_OK)
-
     def perform_destroy(self, instance):
         instance.is_active = False
+        Dailytodos.objects.all().filter(link=instance).update(is_active=False)
+        Todos_history.objects.all().filter(todo=instance).update(is_active=False)
         instance.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
+        
     def perform_create(self, serializer):
         serializer.save(user= self.request.user)
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
     
+class Todo_listview(ListCreateAPIView):
+    serializer_class = Todos_serializer
+    def get_queryset(self):
+        qs = Todos.objects.all().filter(is_active=True)
+        return qs
+     
+    def perform_create(self, serializer):
+        serializer.save(user= self.request.user)   
 
-class DailyTodo_view(ListAPIView,
+class DailyTodo_view(
                      CreateAPIView,
                      RetrieveAPIView,
                      DestroyAPIView,
@@ -62,8 +64,19 @@ class DailyTodo_view(ListAPIView,
         instance.is_active = False
         instance.save()
 
+class DailyTodo_view1(
+                     ListCreateAPIView
+                     ):
+    serializer_class = Daily_serializer
+    def get_queryset(self):
+        qs = Dailytodos.objects.all().filter(is_active=True)
+        return qs
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-class RecordTodo_view(ListAPIView,
+
+
+class RecordTodo_view(
                      CreateAPIView,
                      RetrieveAPIView,
                      DestroyAPIView,
@@ -71,10 +84,7 @@ class RecordTodo_view(ListAPIView,
                      ):
     serializer_class = Recods_serializers
     def get_queryset(self):
-        if self.kwargs.get('pk') is not None:
-            qs = Records.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
-        else:
-            qs = Records.objects.all().filter(is_active=True)
+        qs = Records.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
         return qs
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -82,8 +92,18 @@ class RecordTodo_view(ListAPIView,
         instance.is_active = False
         instance.save()
 
+class RecordTodo_view1(ListAPIView,
+                     CreateAPIView,
+                     ):
+    serializer_class = Recods_serializers
+    def get_queryset(self):
+        qs = Records.objects.all().filter(is_active=True)
+        return qs
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
 
-class TodoHistory_view(ListAPIView,
+class TodoHistory_view(
                      CreateAPIView,
                      RetrieveAPIView,
                      DestroyAPIView,
@@ -91,10 +111,7 @@ class TodoHistory_view(ListAPIView,
                      ):
     serializer_class = Todos_history_serializer
     def get_queryset(self):
-        if self.kwargs.get('pk') is not None:
-            qs = Todos_history.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)
-        else:
-            qs = Todos_history.objects.all().filter(is_active=True)
+        qs = Todos_history.objects.all().filter(id = self.kwargs.get('pk')).filter(is_active=True)        
         return qs
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -102,6 +119,15 @@ class TodoHistory_view(ListAPIView,
         instance.is_active = False
         instance.save()
 
+class TodoHistory_view1(ListAPIView,
+                     CreateAPIView,
+                     ):
+    serializer_class = Todos_history_serializer
+    def get_queryset(self):
+        qs = Todos_history.objects.all().filter(is_active=True)
+        return qs
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 

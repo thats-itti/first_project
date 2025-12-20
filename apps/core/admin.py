@@ -10,7 +10,7 @@ admin.site.register(Records)
 
 
 @admin.register(User)
-class Useradmin(UserAdmin):
+class customuser(UserAdmin):
     model = User
     # this list_display is for what should be display in like usermodel as a single instance outside what you wish to be shown to represent 
     list_display = ("email","is_staff","is_superuser","is_active",)
